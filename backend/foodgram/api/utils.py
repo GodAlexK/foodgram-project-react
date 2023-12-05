@@ -1,17 +1,21 @@
 import io
-from django.shortcuts import get_object_or_404
+
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
-from django_filters.rest_framework import FilterSet, filters
+
 from rest_framework import status
 from rest_framework.response import Response
 
-from recipes import models
+from recipes.models import Recipe
+
 
 def create_shopping_cart(ingredients_cart):
-    """Функция для формирования списка покупок."""
+    """Функция для формирования списка покупок для скачивания."""
+
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = (
         "attachment; filename='shopping_cart.pdf'"
@@ -47,7 +51,9 @@ def create_shopping_cart(ingredients_cart):
 
 
 def add_or_del_obj(pk, request, param, serializer_context):
-    obj = get_object_or_404(models.Recipe, pk=pk)
+    """Функция для добавления или удаления объекта."""
+
+    obj = get_object_or_404(Recipe, pk=pk)
     obj_bool = param.filter(pk=obj.pk).exists()
     if request.method == 'DELETE' and obj_bool:
         param.clear()

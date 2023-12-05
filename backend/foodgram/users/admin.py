@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, Subscription
+from .models import Subscription, User
 
 
 class UserProfileAdmin(admin.ModelAdmin):
@@ -16,6 +16,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         'username',
         )
     empty_value_display = '-пусто-'
+
 
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = (

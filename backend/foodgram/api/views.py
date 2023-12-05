@@ -1,49 +1,43 @@
 import collections
+
 from django.http import HttpResponse
-from djoser.views import UserViewSet
-
 from django_filters.rest_framework import DjangoFilterBackend
-
+from djoser.views import UserViewSet
+from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.viewsets import ReadOnlyModelViewSet
-from rest_framework import viewsets, status
-
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import (
-    AllowAny,
-)
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from rest_framework import serializers
-from rest_framework import permissions
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from users.models import User, Subscription
+from api import serializers, utils
+from api.pagination import LimitPagePagination
 from recipes.models import (
     Tag,
     Ingredient,
     Recipe,
     RecipeIngredient,
-
     )
+from users.models import User, Subscription
+
+from .filters import IngredientSearchFilter, RecipeSearchFilter
+from .permissions import AnonimOrAuthenticatedReadOnly, IsAuthorOrReadOnly
 from .serializers import (
-    CustomUserSerializer,
+    RecipeShortListSerializer,
+    CustomUserSerializer, 
     SubscriptionSerializer,
     SubscriptionShowSerializer,
+    TagSerializer,
+    IngredientSerializer,
+    RecipeCreateSerializer,
+    RecipeSerializer,
     )
 
 
-from api import serializers, utils
-
-from .permissions import (
-    IsAuthorOrReadOnly, AnonimOrAuthenticatedReadOnly
-)
-from api.pagination import LimitPagePagination
-from .filters import RecipeSearchFilter, IngredientSearchFilter
-
 class CustomUserViewSet(UserViewSet):
-    """ВьюСет для создания/просмотра пользователей, создания/управления подписками."""
+    """ВьюСет для создания/просмотра пользователей,
+    создания/управления подписками."""
 
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
@@ -56,7 +50,7 @@ class CustomUserViewSet(UserViewSet):
         url_path='me',
         url_name='me',
         permission_classes=(permissions.IsAuthenticated,)
-    )
+        )
 
     def get_me(self, request):
         """Просмотр профиля пользователя."""
@@ -65,15 +59,14 @@ class CustomUserViewSet(UserViewSet):
             serializer = CustomUserSerializer(
                 request.user, data=request.data,
                 partial=True, context={'request': request}
-            )
+                )
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         serializer = CustomUserSerializer(
             request.user, context={'request': request}
-        )
+            )
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
     @action(
         detail=True,
@@ -81,26 +74,28 @@ class CustomUserViewSet(UserViewSet):
         url_path='subscribe',
         url_name='subscribe',
         permission_classes=(permissions.IsAuthenticated,)
-    )
+        )
+
     def get_subscribe(self, request, id):
         """Подписка/отписка пользователя на авторов."""
+
         subscriber = request.user
         author = get_object_or_404(User, id=id)
         change_subscription = Subscription.objects.filter(
             subscriber=subscriber.id, author=author.id
-        )
+            )
         if request.method == 'POST':
             serializer = SubscriptionSerializer(
                 data={'subscriber': request.user.id, 'author': author.id}
-            )
+                )
             serializer.is_valid(raise_exception=True)
             serializer.save()
             author_serializer = SubscriptionShowSerializer(
                 author, context={'request': request}
-            )
+                )
             return Response(
                 author_serializer.data, status=status.HTTP_201_CREATED
-            )
+                )
         if change_subscription.exists():
             change_subscription.delete()
             return Response(f'Вы отписались от {author}',
@@ -114,7 +109,8 @@ class CustomUserViewSet(UserViewSet):
         url_path='subscriptions',
         url_name='subscriptions',
         permission_classes=(permissions.IsAuthenticated,)
-    )
+        )
+
     def get_subscriptions(self, request):
         """Получение подписок на авторов."""
         
@@ -122,10 +118,10 @@ class CustomUserViewSet(UserViewSet):
         paginator = LimitOffsetPagination()
         result_pages = paginator.paginate_queryset(
             queryset=authors, request=request
-        )
+            )
         serializer = SubscriptionShowSerializer(
             result_pages, context={'request': request}, many=True
-        )
+            )
         return paginator.get_paginated_response(serializer.data)
 
 
@@ -134,7 +130,7 @@ class TagViewSet(ReadOnlyModelViewSet):
 
     queryset = Tag.objects.all()
     permission_classes = (AllowAny,)
-    serializer_class = serializers.TagSerializer
+    serializer_class = TagSerializer
     pagination_class = None
 
 
@@ -143,26 +139,27 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
     queryset = Ingredient.objects.all()
     permission_classes = (AllowAny,)
-    serializer_class = serializers.IngredientSerializer
+    serializer_class = IngredientSerializer
     pagination_class = None
-    filter_backends = (DjangoFilterBackend, )
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientSearchFilter
     search_fields = ('^name', )
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """ВьюСет для создания рецепта."""
+
     queryset = Recipe.objects.all()
-    serializer_class = serializers.RecipeSerializer
+    serializer_class = RecipeSerializer
     pagination_class = LimitPagePagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeSearchFilter
     permission_classes = (IsAuthorOrReadOnly,)
 
-
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return serializers.RecipeSerializer
-        return serializers.RecipeCreateSerializer
+            return RecipeSerializer
+        return RecipeCreateSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -170,7 +167,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(methods=['post', 'delete'], detail=True)
     def favorite(self, request, pk):
         return utils.add_or_del_obj(pk, request, request.user.favorites,
-                                    serializers.RecipeForUserSerializer)
+                                    RecipeShortListSerializer)
 
     @action(methods=['get'], detail=True)
     def favorited(self, request):
@@ -178,14 +175,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         favorites = user.favorites.all()
         paginator = LimitPagePagination()
         pages = paginator.paginate_queryset(favorites)
-        serializer = serializers.RecipeForUserSerializer(
+        serializer = RecipeShortListSerializer(
             pages, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
     @action(methods=['post', 'delete'], detail=True)
     def shopping_cart(self, request, pk):
         return utils.add_or_del_obj(pk, request, request.user.shopping_cart,
-                                    serializers.RecipeForUserSerializer)
+                                    serializers.RecipeShortListSerializer)
 
     @action(methods=['get'], detail=False)
     def download_shopping_cart(self, request):

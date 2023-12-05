@@ -11,14 +11,11 @@ class RecipeAdmin(admin.ModelAdmin):
         return obj.favorites.count()
 
 
-admin.site.register(models.Recipe, RecipeAdmin)
-
-
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit')
     list_filter = ('name',)
 
-
-admin.site.register(models.Ingredient, IngredientAdmin)
 admin.site.register(models.Tag)
+admin.site.register(models.Ingredient, IngredientAdmin)
+admin.site.register(models.Recipe, RecipeAdmin)
 admin.site.register(models.RecipeIngredient)
