@@ -2,7 +2,9 @@ import collections
 
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
+
 from djoser.views import UserViewSet
+
 from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -40,7 +42,6 @@ class CustomUserViewSet(UserViewSet):
         url_name='me',
         permission_classes=(permissions.IsAuthenticated,)
         )
-
     def get_me(self, request):
         """Просмотр профиля пользователя."""
 
@@ -64,7 +65,6 @@ class CustomUserViewSet(UserViewSet):
         url_name='subscribe',
         permission_classes=(permissions.IsAuthenticated,)
         )
-
     def get_subscribe(self, request, id):
         """Подписка/отписка пользователя на авторов."""
 
@@ -99,10 +99,9 @@ class CustomUserViewSet(UserViewSet):
         url_name='subscriptions',
         permission_classes=(permissions.IsAuthenticated,)
         )
-
     def get_subscriptions(self, request):
         """Получение подписок на авторов."""
-        
+
         authors = User.objects.filter(author__subscriber=request.user)
         paginator = LimitOffsetPagination()
         result_pages = paginator.paginate_queryset(
