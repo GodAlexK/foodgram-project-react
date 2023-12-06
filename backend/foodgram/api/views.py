@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
-from rest_framework import permissions, serializers, status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
@@ -167,7 +167,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(methods=['post', 'delete'], detail=True)
     def shopping_cart(self, request, pk):
         return utils.add_or_del_obj(pk, request, request.user.shopping_cart,
-                                    serializers.RecipeShortListSerializer)
+                                    RecipeShortListSerializer)
 
     @action(methods=['get'], detail=False)
     def download_shopping_cart(self, request):
