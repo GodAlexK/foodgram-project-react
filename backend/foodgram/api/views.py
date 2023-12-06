@@ -13,26 +13,15 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from api import serializers, utils
 from api.pagination import LimitPagePagination
-from recipes.models import (
-    Tag,
-    Ingredient,
-    Recipe,
-    RecipeIngredient,
-    )
-from users.models import User, Subscription
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from users.models import Subscription, User
 
 from .filters import IngredientSearchFilter, RecipeSearchFilter
 from .permissions import AnonimOrAuthenticatedReadOnly, IsAuthorOrReadOnly
-from .serializers import (
-    RecipeShortListSerializer,
-    CustomUserSerializer, 
-    SubscriptionSerializer,
-    SubscriptionShowSerializer,
-    TagSerializer,
-    IngredientSerializer,
-    RecipeCreateSerializer,
-    RecipeSerializer,
-    )
+from .serializers import (CustomUserSerializer, IngredientSerializer,
+                          RecipeCreateSerializer, RecipeSerializer,
+                          RecipeShortListSerializer, SubscriptionSerializer,
+                          SubscriptionShowSerializer, TagSerializer)
 
 
 class CustomUserViewSet(UserViewSet):

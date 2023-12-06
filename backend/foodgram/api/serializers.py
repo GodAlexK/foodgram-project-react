@@ -5,16 +5,13 @@ from django.core.files.base import ContentFile
 from django.db import IntegrityError
 from django.db.models import F
 from django.shortcuts import get_object_or_404
-
 from djoser.serializers import UserCreateSerializer, UserSerializer
-
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
 
-from recipes.models import Tag, Ingredient, Recipe, RecipeIngredient
-
-from users.models import User, Subscription
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from users.models import Subscription, User
 from users.validators import validate_username
 
 RECIPES_LIMIT = 6
