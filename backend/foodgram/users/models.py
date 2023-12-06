@@ -14,7 +14,7 @@ class User(AbstractUser):
         verbose_name='Адрес электронной почты',
         max_length=254,
         unique=True,
-        )
+    )
     username = models.CharField(
         verbose_name='Пользователь',
         max_length=150,
@@ -34,15 +34,15 @@ class User(AbstractUser):
     first_name = models.CharField(
         verbose_name='Имя',
         max_length=150,
-        )
+    )
     last_name = models.CharField(
         verbose_name='Фамилия',
         max_length=150,
-        )
+    )
     password = models.CharField(
         max_length=150,
         verbose_name='Пароль',
-        )
+    )
 
     def __str__(self):
         return self.username
@@ -60,13 +60,13 @@ class Subscription(models.Model):
         on_delete=models.CASCADE,
         related_name='subscriber',
         verbose_name='Подписчик'
-        )
+    )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='author',
         verbose_name='Автор рецепта'
-        )
+    )
 
     def __str__(self):
         return f'Пользователь "{self.subscriber}" подписан на "{self.author}"'

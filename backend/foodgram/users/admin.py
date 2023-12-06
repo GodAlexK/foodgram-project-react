@@ -10,11 +10,11 @@ class UserProfileAdmin(admin.ModelAdmin):
         'first_name',
         'last_name',
         'password',
-        )
+    )
     list_filter = (
         'email',
         'username',
-        )
+    )
     empty_value_display = '-пусто-'
 
 
@@ -22,7 +22,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_display = (
         'subscriber',
         'author',
-        )
+    )
     empty_value_display = '-пусто-'
 
 
