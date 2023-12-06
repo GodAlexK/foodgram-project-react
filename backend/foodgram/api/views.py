@@ -10,8 +10,8 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
-from api import utils
 from api.pagination import LimitPagePagination
+from api import utils
 
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Subscription, User
