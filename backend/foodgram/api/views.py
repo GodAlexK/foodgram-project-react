@@ -2,9 +2,7 @@ import collections
 
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-
 from djoser.views import UserViewSet
-
 from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -12,10 +10,10 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
-
 from api import utils
 from api.pagination import LimitPagePagination
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+
+from recipes.models import (Tag, Ingredient, Recipe, RecipeIngredient)
 from users.models import Subscription, User
 
 from .filters import IngredientSearchFilter, RecipeSearchFilter
