@@ -4,8 +4,7 @@ from django.db import models
 from colorfield.fields import ColorField
 
 from .validators import (validate_slug,
-                         validate_value_greater_zero,
-                         )
+                         validate_value_greater_zero,)
 from users.models import User
 
 
@@ -28,7 +27,7 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
@@ -50,7 +49,7 @@ class Ingredient(models.Model):
         verbose_name='Единицы измерения',
         max_length=200
         )
-    
+
     def __str__(self):
         return f'{self.name} ({self.measurement_unit})'
 
@@ -74,7 +73,7 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
         related_name='recipes',
         verbose_name='Автор рецепта'
-        )   
+        )
     image = models.ImageField(
         upload_to='recipes/',
         null=True,
@@ -83,7 +82,7 @@ class Recipe(models.Model):
     cooking_time = models.PositiveIntegerField(
         validators=[MinValueValidator(1),
                     validate_value_greater_zero],
-        verbose_name ='Время приготовления',
+        verbose_name='Время приготовления',
         help_text='Время приготовления не может быть меньше 1 мин.'
         )
     ingredients = models.ManyToManyField(
@@ -134,7 +133,7 @@ class RecipeIngredient(models.Model):
         on_delete=models.CASCADE,
         related_name='recipes_ingredients'
         )
-    amount=models.PositiveIntegerField(
+    amount = models.PositiveIntegerField(
         validators=[MinValueValidator(1),
                     validate_value_greater_zero
                     ],
