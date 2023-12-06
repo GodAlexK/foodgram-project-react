@@ -1,10 +1,9 @@
 from django.contrib import admin
-
 from recipes.models import Tag, Ingredient, Recipe, RecipeIngredient
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author', 'favorites_count', )
+    list_display = ('name', 'author', 'favorites_count',)
     list_filter = ('name', 'author', 'tags',)
 
     def favorites_count(self, obj):
@@ -14,6 +13,7 @@ class RecipeAdmin(admin.ModelAdmin):
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit')
     list_filter = ('name',)
+
 
 admin.site.register(Tag)
 admin.site.register(Ingredient, IngredientAdmin)
