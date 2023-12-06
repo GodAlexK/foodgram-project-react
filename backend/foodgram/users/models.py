@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from .validators import validate_username
+from foodgram.constants import MAX_LENGTH_EMAIL, MAX_LENGTH_USER
 
 
 class User(AbstractUser):
@@ -12,12 +13,12 @@ class User(AbstractUser):
 
     email = models.EmailField(
         verbose_name='Адрес электронной почты',
-        max_length=254,
+        max_length=MAX_LENGTH_EMAIL,
         unique=True,
     )
     username = models.CharField(
         verbose_name='Пользователь',
-        max_length=150,
+        max_length=MAX_LENGTH_USER,
         unique=True,
         help_text=(
             'Не больше 150 символов.'
@@ -33,14 +34,14 @@ class User(AbstractUser):
     )
     first_name = models.CharField(
         verbose_name='Имя',
-        max_length=150,
+        max_length=MAX_LENGTH_USER,
     )
     last_name = models.CharField(
         verbose_name='Фамилия',
-        max_length=150,
+        max_length=MAX_LENGTH_USER,
     )
     password = models.CharField(
-        max_length=150,
+        max_length=MAX_LENGTH_USER,
         verbose_name='Пароль',
     )
 
@@ -74,6 +75,7 @@ class Subscription(models.Model):
     class Meta:
         verbose_name = 'Подписка на пользователя'
         verbose_name_plural = 'Подписки на пользователей'
+        ordering = ('-author_id',)
         constraints = [
             models.UniqueConstraint(
                 fields=['author', 'subscriber'],

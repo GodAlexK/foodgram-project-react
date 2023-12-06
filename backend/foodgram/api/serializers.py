@@ -6,14 +6,16 @@ from django.db import IntegrityError
 from django.db.models import F
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
+
+from foodgram.constants import (MAX_LENGTH, MAX_LENGTH_USER,
+                                MAX_VALUE, MIN_VALUE,
+                                RECIPES_LIMIT)
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Subscription, User
 from users.validators import validate_username
-
-RECIPES_LIMIT = 6
 
 
 class RecipeShortListSerializer(serializers.ModelSerializer):
@@ -34,7 +36,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 
     username = serializers.CharField(
         required=True,
-        max_length=150,
+        max_length=MAX_LENGTH_USER,
         validators=[
             validate_username,
             UnicodeUsernameValidator()
@@ -197,22 +199,17 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
     id = serializers.IntegerField(write_only=True)
     amount = serializers.IntegerField(write_only=True)
+    cooking_time = serializers.IntegerField(write_only=True,
+                                            max_value=MAX_VALUE,
+                                            min_value=MIN_VALUE)
 
-    @staticmethod
-    def validate_amount(value):
-        """Валидация количества ингридиентов"""
-
-        if value < 1:
-            raise serializers.ValidationError(
-                'Количество ингредиента должно быть больше 0!'
-            )
-        return value
 
     class Meta:
         model = RecipeIngredient
         fields = (
             'id',
-            'amount'
+            'amount',
+            'cooking_time',
         )
 
 
@@ -232,12 +229,15 @@ class Base64ImageField(serializers.ImageField):
 class RecipeCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для создания рецепта."""
 
-    name = serializers.CharField(max_length=200)
+    name = serializers.CharField(max_length=MAX_LENGTH)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True)
     ingredients = RecipeIngredientSerializer(many=True)
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
+    cooking_time = serializers.IntegerField(write_only=True,
+                                            max_value=MAX_VALUE,
+                                            min_value=MIN_VALUE)
 
     class Meta:
         model = Recipe
@@ -268,15 +268,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         if len(ingredients_ids) != len(set(ingredients_ids)):
             raise serializers.ValidationError(
                 ('Ингредиенты не должны повторяться.')
-            )
-        return value
-
-    def validate_cooking_time(self, value):
-        """Проверка что время приготовления больше 0"""
-
-        if value < 1:
-            raise serializers.ValidationError(
-                ('Время приготовления должно быть больше 0.')
             )
         return value
 
@@ -336,7 +327,7 @@ class RecipeSerializer(RecipeCreateSerializer):
 
     tags = TagSerializer(read_only=True, many=True)
     ingredients = serializers.SerializerMethodField()
-    name = serializers.CharField(max_length=200)
+    name = serializers.CharField(max_length=MAX_LENGTH)
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField(required=False, allow_null=True)
     is_favorited = serializers.SerializerMethodField(read_only=True)

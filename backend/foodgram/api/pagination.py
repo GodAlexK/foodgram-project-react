@@ -1,9 +1,10 @@
 from rest_framework.pagination import PageNumberPagination
 
+from foodgram.constants import MAX_PAGE_SIZE
+
 
 class LimitPagePagination(PageNumberPagination):
     """Вывод 6 объектов на странице."""
 
-    page_size = 6
+    page_size = MAX_PAGE_SIZE
     page_size_query_param = 'limit'
-    max_page_size = 200

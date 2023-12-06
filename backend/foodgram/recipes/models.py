@@ -1,27 +1,27 @@
-from colorfield.fields import ColorField
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from users.models import User
+from colorfield.fields import ColorField
 
+from foodgram.constants import MAX_LENGTH, MAX_VALUE, MIN_VALUE
+from users.models import User
 from .validators import validate_slug, validate_value_greater_zero
 
 
 class Tag(models.Model):
+    """Модель тега"""
+
     name = models.CharField(
         verbose_name='Название тега',
-        max_length=200,
+        max_length=MAX_LENGTH,
         unique=True,
         db_index=True,)
     color = ColorField(
         verbose_name='Цвет тега',)
     slug = models.SlugField(
         verbose_name='Метка',
-        max_length=200,
+        max_length=MAX_LENGTH,
         unique=True,
         validators=[validate_slug],)
-
-    def __str__(self):
-        return self.name
 
     class Meta:
         verbose_name = 'Тег'
@@ -33,27 +33,34 @@ class Tag(models.Model):
                 name='unique_tags'),
         )
 
+    def __str__(self):
+        return self.name
+
 
 class Ingredient(models.Model):
+    """Модель ингридиента"""
+
     name = models.CharField(
         verbose_name='Название ингридиента',
-        max_length=200)
+        max_length=MAX_LENGTH)
     measurement_unit = models.CharField(
         verbose_name='Единицы измерения',
-        max_length=200)
-
-    def __str__(self):
-        return f'{self.name} ({self.measurement_unit})'
+        max_length=MAX_LENGTH)
 
     class Meta:
         verbose_name = 'Ингридиент'
         verbose_name_plural = 'Ингридиенты'
         ordering = ('name',)
 
+    def __str__(self):
+        return f'{self.name} ({self.measurement_unit})'
+
 
 class Recipe(models.Model):
+    """Модель рецепта"""
+
     name = models.CharField(
-        max_length=200,
+        max_length=MAX_LENGTH,
         verbose_name='Hазвание рецепта',
         db_index=True)
     text = models.TextField(
@@ -67,8 +74,8 @@ class Recipe(models.Model):
         upload_to='recipes/',
         null=True,
         blank=True)
-    cooking_time = models.PositiveIntegerField(
-        validators=[MinValueValidator(1),
+    cooking_time = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(MIN_VALUE), MaxValueValidator(MAX_VALUE),
                     validate_value_greater_zero],
         verbose_name='Время приготовления',
         help_text='Время приготовления не может быть меньше 1 мин.')
@@ -95,16 +102,18 @@ class Recipe(models.Model):
         auto_now_add=True,
         verbose_name='Дата и время публикации рецепта',)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ('created',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
+    def __str__(self):
+        return self.name
+
 
 class RecipeIngredient(models.Model):
+    """Модель ингридиента в рецепте"""
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -113,15 +122,12 @@ class RecipeIngredient(models.Model):
         Ingredient,
         on_delete=models.CASCADE,
         related_name='recipes_ingredients')
-    amount = models.PositiveIntegerField(
-        validators=[MinValueValidator(1),
+    amount = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(MIN_VALUE), MaxValueValidator(MAX_VALUE),
                     validate_value_greater_zero
                     ],
         verbose_name='Количество ингридиентов',
         db_index=True)
-
-    def __str__(self):
-        return f'{self.ingredient} {self.recipe}'
 
     class Meta:
         verbose_name = 'Количество ингридиентов'
@@ -130,3 +136,6 @@ class RecipeIngredient(models.Model):
             models.UniqueConstraint(
                 fields=('recipe', 'ingredient'),
                 name='unique_ingredients_in_recipes')]
+
+    def __str__(self):
+        return f'{self.ingredient} {self.recipe}'

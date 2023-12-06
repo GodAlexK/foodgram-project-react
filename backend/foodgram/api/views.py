@@ -3,7 +3,6 @@ import collections
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -11,10 +10,12 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
-from users.models import Subscription, User
-from api.pagination import LimitPagePagination
-from api import utils
 
+from api.pagination import LimitPagePagination
+from api.utils import add_or_del_obj
+from foodgram.constants import VALUE_ZERO
+from users.models import Subscription, User
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from .filters import IngredientSearchFilter, RecipeSearchFilter
 from .permissions import AnonimOrAuthenticatedReadOnly, IsAuthorOrReadOnly
 from .serializers import (CustomUserSerializer, IngredientSerializer,
@@ -151,7 +152,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post', 'delete'], detail=True)
     def favorite(self, request, pk):
-        return utils.add_or_del_obj(pk, request, request.user.favorites,
+        return add_or_del_obj(pk, request, request.user.favorites,
                                     RecipeShortListSerializer)
 
     @action(methods=['get'], detail=True)
@@ -166,7 +167,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post', 'delete'], detail=True)
     def shopping_cart(self, request, pk):
-        return utils.add_or_del_obj(pk, request, request.user.shopping_cart,
+        return add_or_del_obj(pk, request, request.user.shopping_cart,
                                     RecipeShortListSerializer)
 
     @action(methods=['get'], detail=False)
@@ -175,10 +176,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         filename = f'{user.username}_shopping_list.txt'
         ingredients = (RecipeIngredient.objects.filter(
             recipe__in=request.user.shopping_cart.all()).values_list(
-                "ingredient__name", "amount", "ingredient__measurement_unit"))
-        result = collections.defaultdict(lambda: (0, ""))
+                'ingredient__name', 'amount', 'ingredient__measurement_unit'))
+        result = collections.defaultdict(lambda: (VALUE_ZERO, ''))
         for ingredient, amount, unit in ingredients:
-            result[ingredient] = (result[ingredient][0] + amount, unit)
+            result[ingredient] = (result[ingredient][VALUE_ZERO] + amount, unit)
             file_list = []
             [file_list.append(
                 '{} - {} {}.'.format(ingredient, amount, unit)) for ingredient,

@@ -2,12 +2,20 @@ import io
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from recipes.models import Recipe
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import status
 from rest_framework.response import Response
+
+from foodgram.constants import (MIN_VALUE, FONT_HEIGHT,
+                                VERTICAL_POSITION_TITUL_ON_PAGE,
+                                HORISONTAL_POSITION_TITUL_ON_PAGE,
+                                VERTICAL_POSITION_TEXT_ON_PAGE,
+                                HORISONTAL_POSITION_TEXT_ON_PAGE,
+                                MAX_INTERVAL_LINES,)
+from recipes.models import Recipe
+
 
 
 def create_shopping_cart(ingredients_cart):
@@ -22,23 +30,25 @@ def create_shopping_cart(ingredients_cart):
     )
     buffer = io.BytesIO()
     pdf_file = canvas.Canvas(buffer)
-    pdf_file.setFont('Arial', 24)
-    pdf_file.drawString(200, 800, 'Список покупок.')
-    pdf_file.setFont('Arial', 14)
-    from_bottom = 750
-    for number, ingredient in enumerate(ingredients_cart, start=1):
+    pdf_file.setFont('Arial', FONT_HEIGHT)
+    pdf_file.drawString(VERTICAL_POSITION_TITUL_ON_PAGE,
+                        HORISONTAL_POSITION_TITUL_ON_PAGE,
+                        'Список покупок.')
+    pdf_file.setFont('Arial', FONT_HEIGHT)
+    from_bottom = VERTICAL_POSITION_TEXT_ON_PAGE
+    for number, ingredient in enumerate(ingredients_cart, start=MIN_VALUE):
         pdf_file.drawString(
-            50,
+            HORISONTAL_POSITION_TEXT_ON_PAGE,
             from_bottom,
             f"{number}. {ingredient['ingredient__name']}: "
             f"{ingredient['ingredient_value']} "
             f"{ingredient['ingredient__measurement_unit']}.",
         )
-        from_bottom -= 20
-        if from_bottom <= 50:
-            from_bottom = 800
+        from_bottom -= MAX_INTERVAL_LINES
+        if from_bottom <= HORISONTAL_POSITION_TEXT_ON_PAGE:
+            from_bottom = HORISONTAL_POSITION_TITUL_ON_PAGE
             pdf_file.showPage()
-            pdf_file.setFont('Arial', 14)
+            pdf_file.setFont('Arial', FONT_HEIGHT)
     pdf_file.showPage()
     pdf_file.save()
     pdf = buffer.getvalue()
