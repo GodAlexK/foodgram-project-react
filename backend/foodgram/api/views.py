@@ -41,7 +41,7 @@ class CustomUserViewSet(UserViewSet):
         url_path='me',
         url_name='me',
         permission_classes=(permissions.IsAuthenticated,)
-        )
+    )
     def get_me(self, request):
         """Просмотр профиля пользователя."""
 
@@ -49,13 +49,13 @@ class CustomUserViewSet(UserViewSet):
             serializer = CustomUserSerializer(
                 request.user, data=request.data,
                 partial=True, context={'request': request}
-                )
+            )
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         serializer = CustomUserSerializer(
             request.user, context={'request': request}
-            )
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(
@@ -64,7 +64,7 @@ class CustomUserViewSet(UserViewSet):
         url_path='subscribe',
         url_name='subscribe',
         permission_classes=(permissions.IsAuthenticated,)
-        )
+    )
     def get_subscribe(self, request, id):
         """Подписка/отписка пользователя на авторов."""
 
@@ -72,19 +72,19 @@ class CustomUserViewSet(UserViewSet):
         author = get_object_or_404(User, id=id)
         change_subscription = Subscription.objects.filter(
             subscriber=subscriber.id, author=author.id
-            )
+        )
         if request.method == 'POST':
             serializer = SubscriptionSerializer(
                 data={'subscriber': request.user.id, 'author': author.id}
-                )
+            )
             serializer.is_valid(raise_exception=True)
             serializer.save()
             author_serializer = SubscriptionShowSerializer(
                 author, context={'request': request}
-                )
+            )
             return Response(
                 author_serializer.data, status=status.HTTP_201_CREATED
-                )
+            )
         if change_subscription.exists():
             change_subscription.delete()
             return Response(f'Вы отписались от {author}',
@@ -98,7 +98,7 @@ class CustomUserViewSet(UserViewSet):
         url_path='subscriptions',
         url_name='subscriptions',
         permission_classes=(permissions.IsAuthenticated,)
-        )
+    )
     def get_subscriptions(self, request):
         """Получение подписок на авторов."""
 
@@ -106,10 +106,10 @@ class CustomUserViewSet(UserViewSet):
         paginator = LimitOffsetPagination()
         result_pages = paginator.paginate_queryset(
             queryset=authors, request=request
-            )
+        )
         serializer = SubscriptionShowSerializer(
             result_pages, context={'request': request}, many=True
-            )
+        )
         return paginator.get_paginated_response(serializer.data)
 
 

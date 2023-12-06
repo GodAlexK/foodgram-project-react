@@ -13,7 +13,7 @@ class IngredientSearchFilter(filters.FilterSet):
         model = Ingredient
         fields = (
             'name',
-            )
+        )
 
 
 class RecipeSearchFilter(FilterSet):
@@ -29,7 +29,7 @@ class RecipeSearchFilter(FilterSet):
         fields = (
             'tags',
             'author'
-            )
+        )
 
     def filter_is_favorited(self, queryset, name, value):
         if value and self.request.user.is_authenticated:
