@@ -1,5 +1,6 @@
 from django.contrib import admin
-from recipes.models import (Tag, Ingredient, Recipe, RecipeIngredient)
+
+from .models import Tag, Ingredient, Recipe, RecipeIngredient
 
 
 class RecipeAdmin(admin.ModelAdmin):
