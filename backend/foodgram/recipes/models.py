@@ -1,9 +1,9 @@
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db import models
 from colorfield.fields import ColorField
-
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 from foodgram.constants import MAX_LENGTH, MAX_VALUE, MIN_VALUE
 from users.models import User
+
 from .validators import validate_slug, validate_value_greater_zero
 
 
