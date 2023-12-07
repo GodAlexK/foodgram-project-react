@@ -1,6 +1,6 @@
 import os
-
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 from foodgram.constants import MAX_PAGE_SIZE
