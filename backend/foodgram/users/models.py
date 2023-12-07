@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from foodgram.constants import MAX_LENGTH_EMAIL, MAX_LENGTH_USER
 
+from foodgram.constants import MAX_LENGTH_EMAIL, MAX_LENGTH_USER
 from .validators import validate_username
 
 
