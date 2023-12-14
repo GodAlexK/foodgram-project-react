@@ -198,16 +198,12 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
     id = serializers.IntegerField(write_only=True)
     amount = serializers.IntegerField(write_only=True)
-    cooking_time = serializers.IntegerField(write_only=True,
-                                            max_value=MAX_VALUE,
-                                            min_value=MIN_VALUE)
 
     class Meta:
         model = RecipeIngredient
         fields = (
             'id',
             'amount',
-            'cooking_time',
         )
 
 
@@ -233,9 +229,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     ingredients = RecipeIngredientSerializer(many=True)
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
-    cooking_time = serializers.IntegerField(write_only=True,
-                                            max_value=MAX_VALUE,
-                                            min_value=MIN_VALUE)
 
     class Meta:
         model = Recipe
@@ -251,7 +244,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             )
         if 'tags' not in data:
             raise serializers.ValidationError(
-                {'tags', ('Данного тег еще нет.')}
+                {'tags', ('Данного тега еще нет.')}
             )
         return data
 
@@ -327,7 +320,9 @@ class RecipeSerializer(RecipeCreateSerializer):
     ingredients = serializers.SerializerMethodField()
     name = serializers.CharField(max_length=MAX_LENGTH)
     author = CustomUserSerializer(read_only=True)
-    image = Base64ImageField(required=False, allow_null=True)
+    image = Base64ImageField(allow_null=True)
+    cooking_time = serializers.IntegerField(max_value=MAX_VALUE,
+                                            min_value=MIN_VALUE)
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
 
