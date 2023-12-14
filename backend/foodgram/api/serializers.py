@@ -197,7 +197,9 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     """Сериализатор ингредиентов."""
 
     id = serializers.IntegerField(write_only=True)
-    amount = serializers.IntegerField(write_only=True)
+    amount = serializers.IntegerField(write_only=True,
+                                      max_value=MAX_VALUE,
+                                      min_value=MIN_VALUE)
 
     class Meta:
         model = RecipeIngredient
@@ -227,6 +229,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True)
     ingredients = RecipeIngredientSerializer(many=True)
+    cooking_time = serializers.IntegerField(max_value=MAX_VALUE,
+                                            min_value=MIN_VALUE)
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
 
@@ -321,8 +325,6 @@ class RecipeSerializer(RecipeCreateSerializer):
     name = serializers.CharField(max_length=MAX_LENGTH)
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField(allow_null=True)
-    cooking_time = serializers.IntegerField(max_value=MAX_VALUE,
-                                            min_value=MIN_VALUE)
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
 
